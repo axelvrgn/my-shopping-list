@@ -4,7 +4,8 @@ const CACHE_NAME = 'mes-courses-v1';
 const FILES_TO_CACHE = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './recipes.json'
 ];
 
 self.addEventListener('install', (event) => {

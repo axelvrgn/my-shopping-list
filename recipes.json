@@ -1,0 +1,20 @@
+[
+  {"id":"poulet-courgettes", "name":"Blanc de poulet à la poêle, courgettes à la poêle", "time":"20 min", "protein":"Poulet", "protein_g":35,
+    "ingredients":[["Blancs de poulet","Protéines"],["Courgettes","Légumes & fruits"]]},
+  {"id":"poulet-poivrons", "name":"Blanc de poulet à la poêle, poêlée de poivrons et oignons", "time":"20 min", "protein":"Poulet", "protein_g":35,
+    "ingredients":[["Blancs de poulet","Protéines"],["Poivrons","Légumes & fruits"],["Oignon","Légumes & fruits"]]},
+  {"id":"poulet-champignons", "name":"Blanc de poulet à la poêle, champignons et haricots verts", "time":"20 min", "protein":"Poulet", "protein_g":35,
+    "ingredients":[["Blancs de poulet","Protéines"],["Champignons","Légumes & fruits"],["Haricots verts","Légumes & fruits"]]},
+  {"id":"wrap-crudites", "name":"Wrap au poulet, crudités et sauce yaourt", "time":"15 min", "protein":"Poulet", "protein_g":28,
+    "ingredients":[["Blancs de poulet","Protéines"],["Tortillas de blé","Féculents"],["Carottes râpées et salade","Légumes & fruits"],["Yaourt nature","Protéines"]]},
+  {"id":"wrap-avocat", "name":"Wrap au poulet, avocat et cheddar", "time":"15 min", "protein":"Poulet", "protein_g":30,
+    "ingredients":[["Blancs de poulet","Protéines"],["Tortillas de blé","Féculents"],["Avocat","Légumes & fruits"],["Cheddar râpé","Protéines"]]},
+  {"id":"wrap-houmous", "name":"Wrap au poulet, poivrons et houmous", "time":"15 min", "protein":"Poulet", "protein_g":26,
+    "ingredients":[["Blancs de poulet","Protéines"],["Tortillas de blé","Féculents"],["Poivrons","Légumes & fruits"],["Houmous","Protéines"]]},
+  {"id":"carbonara", "name":"Pâtes carbonara à l'italienne (œufs, guanciale, parmesan)", "time":"20 min", "protein":"Œufs & guanciale", "protein_g":28,
+    "ingredients":[["Pâtes (spaghetti)","Féculents"],["Œufs","Protéines"],["Guanciale ou pancetta","Protéines"],["Parmesan","Protéines"]]},
+  {"id":"pates-ail-poulet", "name":"Pâtes à l'ail et huile d'olive, poulet effiloché, parmesan", "time":"20 min", "protein":"Poulet", "protein_g":30,
+    "ingredients":[["Pâtes","Féculents"],["Blancs de poulet","Protéines"],["Ail","Placard"],["Parmesan","Protéines"]]},
+  {"id":"pates-tomates-poulet", "name":"Pâtes au poulet, tomates cerises et parmesan", "time":"20 min", "protein":"Poulet", "protein_g":32,
+    "ingredients":[["Pâtes","Féculents"],["Blancs de poulet","Protéines"],["Tomates cerises","Légumes & fruits"],["Parmesan","Protéines"]]}
+]
