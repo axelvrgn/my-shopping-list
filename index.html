@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mes courses">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2F6F5E">
+<link rel="manifest" href="manifest.json">
+<title>Mes courses de la semaine</title>
+<style>
+  :root{
+    --bg:#F8F6F0;
+    --surface:#FFFFFF;
+    --ink:#232920;
+    --ink-soft:#68705F;
+    --primary:#2F6F5E;
+    --primary-soft:#E4EEE9;
+    --accent:#C97A1A;
+    --accent-soft:#FBEBD8;
+    --line:#E4E0D2;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{ height:100%; }
+  body{
+    margin:0;
+    min-height:100%;
+    min-height:100dvh;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(40px + env(safe-area-inset-bottom));
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:calc(28px + env(safe-area-inset-top)) 20px 12px;}
+  header h1{
+    font-family:Georgia,'Times New Roman',serif;
+    font-weight:600;
+    font-size:clamp(26px,6vw,32px);
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  header p{margin:0 0 22px;color:var(--ink-soft);font-size:14.5px;line-height:1.5;}
+
+  nav.tabs{
+    display:flex;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:4px;
+    gap:2px;
+    margin-bottom:20px;
+    position:sticky;
+    top:8px;
+    z-index:10;
+  }
+  nav.tabs button{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding:9px 6px;
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:500;
+    color:var(--ink-soft);
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .18s ease, color .18s ease;
+  }
+  nav.tabs button.active{background:var(--primary);color:#fff;}
+
+  section{display:none;}
+  section.active{display:block;}
+
+  .cat{margin-bottom:22px;}
+  .cat h3{
+    font-family:Georgia,'Times New Roman',serif;
+    font-weight:600;
+    font-size:16px;
+    margin:0 0 10px;
+    color:var(--primary);
+  }
+  .item-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-bottom:6px;
+  }
+  .item-row span{font-size:14.5px;}
+  .switch{
+    position:relative;width:42px;height:24px;flex-shrink:0;cursor:pointer;
+  }
+  .switch input{opacity:0;width:0;height:0;}
+  .switch .track{
+    position:absolute;inset:0;background:#E2DFD3;border-radius:999px;transition:.18s;
+  }
+  .switch .track:before{
+    content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;
+    background:#fff;border-radius:50%;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,.2);
+  }
+  .switch input:checked + .track{background:var(--primary);}
+  .switch input:checked + .track:before{transform:translateX(18px);}
+
+  .add-row{display:flex;gap:8px;margin-top:8px;}
+  .add-row input{
+    flex:1;padding:9px 12px;border:1px solid var(--line);border-radius:10px;
+    font-family:inherit;font-size:16px;background:var(--surface);
+  }
+  .add-row button{
+    border:none;background:var(--primary-soft);color:var(--primary);
+    font-weight:600;padding:0 16px;border-radius:10px;cursor:pointer;font-size:14px;
+  }
+
+  .meal-count{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:14px;font-size:14px;color:var(--ink-soft);
+  }
+  .meal-count strong{color:var(--ink);}
+
+  .meal-grid{display:flex;flex-direction:column;gap:10px;}
+  .meal-card{
+    background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;cursor:pointer;transition:border-color .15s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .meal-card.selected{border-color:var(--primary);background:var(--primary-soft);}
+  .meal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .meal-top h4{
+    font-family:Georgia,'Times New Roman',serif;font-weight:600;font-size:16.5px;margin:0;
+  }
+  .meal-check{
+    width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    font-size:13px;color:#fff;background:var(--surface);
+  }
+  .meal-card.selected .meal-check{background:var(--primary);border-color:var(--primary);}
+  .meal-meta{margin-top:6px;font-size:13px;color:var(--ink-soft);}
+  .meal-meta span{margin-right:12px;}
+  .badge{
+    display:inline-block;background:var(--accent-soft);color:var(--accent);
+    font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;
+  }
+
+  .shop-cat{margin-bottom:20px;}
+  .shop-cat h3{
+    font-family:Georgia,'Times New Roman',serif;font-weight:600;font-size:15.5px;margin:0 0 8px;color:var(--primary);
+  }
+  .shop-row{
+    display:flex;align-items:center;gap:10px;background:var(--surface);
+    border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:6px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .shop-row input[type=checkbox]{
+    width:19px;height:19px;accent-color:var(--primary);flex-shrink:0;
+  }
+  .shop-row span{font-size:14.5px;}
+  .shop-row.checked span{text-decoration:line-through;color:var(--ink-soft);}
+
+  .empty{
+    text-align:center;padding:36px 20px;color:var(--ink-soft);font-size:14.5px;line-height:1.6;
+  }
+  .empty strong{display:block;color:var(--ink);font-family:Georgia,'Times New Roman',serif;font-size:17px;margin-bottom:6px;font-weight:600;}
+
+  .reset-btn{
+    display:block;margin:18px auto 0;background:none;border:1px solid var(--line);
+    color:var(--ink-soft);font-size:13px;padding:8px 16px;border-radius:999px;cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Mes courses de la semaine</h1>
+    <p>Coche ce que tu as déjà, choisis tes repas, et la liste de courses se construit toute seule. Fonctionne entièrement hors ligne.</p>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="inventaire" class="active">Inventaire</button>
+    <button data-tab="semaine">Cette semaine</button>
+    <button data-tab="courses">Courses</button>
+  </nav>
+
+  <div id="content"></div>
+</div>
+
+<script>
+const MEALS = [
+  {id:'poulet-courgettes', name:"Blanc de poulet à la poêle, courgettes à la poêle", time:"20 min", protein:"Poulet", protein_g:35,
+    ingredients:[["Blancs de poulet","Protéines"],["Courgettes","Légumes & fruits"]]},
+  {id:'poulet-poivrons', name:"Blanc de poulet à la poêle, poêlée de poivrons et oignons", time:"20 min", protein:"Poulet", protein_g:35,
+    ingredients:[["Blancs de poulet","Protéines"],["Poivrons","Légumes & fruits"],["Oignon","Légumes & fruits"]]},
+  {id:'poulet-champignons', name:"Blanc de poulet à la poêle, champignons et haricots verts", time:"20 min", protein:"Poulet", protein_g:35,
+    ingredients:[["Blancs de poulet","Protéines"],["Champignons","Légumes & fruits"],["Haricots verts","Légumes & fruits"]]},
+  {id:'wrap-crudites', name:"Wrap au poulet, crudités et sauce yaourt", time:"15 min", protein:"Poulet", protein_g:28,
+    ingredients:[["Blancs de poulet","Protéines"],["Tortillas de blé","Féculents"],["Carottes râpées et salade","Légumes & fruits"],["Yaourt nature","Protéines"]]},
+  {id:'wrap-avocat', name:"Wrap au poulet, avocat et cheddar", time:"15 min", protein:"Poulet", protein_g:30,
+    ingredients:[["Blancs de poulet","Protéines"],["Tortillas de blé","Féculents"],["Avocat","Légumes & fruits"],["Cheddar râpé","Protéines"]]},
+  {id:'wrap-houmous', name:"Wrap au poulet, poivrons et houmous", time:"15 min", protein:"Poulet", protein_g:26,
+    ingredients:[["Blancs de poulet","Protéines"],["Tortillas de blé","Féculents"],["Poivrons","Légumes & fruits"],["Houmous","Protéines"]]},
+  {id:'carbonara', name:"Pâtes carbonara à l'italienne (œufs, guanciale, parmesan)", time:"20 min", protein:"Œufs & guanciale", protein_g:28,
+    ingredients:[["Pâtes (spaghetti)","Féculents"],["Œufs","Protéines"],["Guanciale ou pancetta","Protéines"],["Parmesan","Protéines"]]},
+  {id:'pates-ail-poulet', name:"Pâtes à l'ail et huile d'olive, poulet effiloché, parmesan", time:"20 min", protein:"Poulet", protein_g:30,
+    ingredients:[["Pâtes","Féculents"],["Blancs de poulet","Protéines"],["Ail","Placard"],["Parmesan","Protéines"]]},
+  {id:'pates-tomates-poulet', name:"Pâtes au poulet, tomates cerises et parmesan", time:"20 min", protein:"Poulet", protein_g:32,
+    ingredients:[["Pâtes","Féculents"],["Blancs de poulet","Protéines"],["Tomates cerises","Légumes & fruits"],["Parmesan","Protéines"]]},
+];
+
+const CAT_ORDER = ["Protéines","Légumes & fruits","Féculents","Placard"];
+
+const PROTEIN_TIERS = [
+  {label:"Riche en protéines", sub:"25 g et plus", min:25},
+  {label:"Modéré", sub:"15 à 24 g", min:15},
+  {label:"Plus léger", sub:"moins de 15 g", min:0},
+];
+
+let inventory = {};      // { itemName: true/false }
+let customItems = [];    // [{name, category}]
+let selectedMeals = [];  // [mealId]
+let shopChecked = {};    // { itemName: true/false }
+let activeTab = 'inventaire';
+
+// Stockage local : tout reste sur l'appareil, aucune connexion requise.
+function loadAll(){
+  try{ inventory = JSON.parse(localStorage.getItem('mc_inventory') || '{}'); }
+  catch(e){ inventory = {}; }
+  try{ customItems = JSON.parse(localStorage.getItem('mc_custom_items') || '[]'); }
+  catch(e){ customItems = []; }
+  try{ selectedMeals = JSON.parse(localStorage.getItem('mc_selected_meals') || '[]'); }
+  catch(e){ selectedMeals = []; }
+  try{ shopChecked = JSON.parse(localStorage.getItem('mc_shop_checked') || '{}'); }
+  catch(e){ shopChecked = {}; }
+  render();
+}
+
+function save(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); }
+  catch(e){ console.error('Erreur de sauvegarde', key, e); }
+}
+
+function allIngredients(){
+  const map = {};
+  MEALS.forEach(m => m.ingredients.forEach(([name,cat]) => { map[name] = cat; }));
+  customItems.forEach(c => { map[c.name] = c.category; });
+  return map;
+}
+
+function groupByCategory(names, catLookup){
+  const groups = {};
+  names.forEach(n => {
+    const cat = catLookup[n] || "Placard";
+    (groups[cat] = groups[cat] || []).push(n);
+  });
+  return groups;
+}
+
+function render(){
+  const el = document.getElementById('content');
+  if(activeTab === 'inventaire') el.innerHTML = renderInventaire();
+  else if(activeTab === 'semaine') el.innerHTML = renderSemaine();
+  else el.innerHTML = renderCourses();
+}
+
+function renderInventaire(){
+  const catLookup = allIngredients();
+  const groups = groupByCategory(Object.keys(catLookup), catLookup);
+  let html = `<section class="active"><p style="font-size:13.5px;color:var(--ink-soft);margin-top:0;">Active ce que tu as déjà à la maison — ça ne sera pas ajouté à ta liste de courses.</p>`;
+  CAT_ORDER.forEach(cat => {
+    const items = (groups[cat] || []).sort();
+    if(items.length === 0) return;
+    html += `<div class="cat"><h3>${cat}</h3>`;
+    items.forEach(name => {
+      const checked = !!inventory[name];
+      html += `
+        <div class="item-row">
+          <span>${name}</span>
+          <label class="switch">
+            <input type="checkbox" data-inv="${encodeURIComponent(name)}" ${checked?'checked':''}>
+            <span class="track"></span>
+          </label>
+        </div>`;
+    });
+    html += `<div class="add-row">
+        <input type="text" placeholder="Ajouter un produit…" data-add-cat="${cat}">
+        <button data-add-btn="${cat}">Ajouter</button>
+      </div></div>`;
+  });
+  html += `</section>`;
+  return html;
+}
+
+function renderSemaine(){
+  let html = `<section class="active">
+    <div class="meal-count"><span>Choisis tes repas pour la semaine</span><strong>${selectedMeals.length} sélectionné${selectedMeals.length>1?'s':''}</strong></div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:-6px 0 16px;">Quantités de protéines estimées par portion.</p>`;
+
+  PROTEIN_TIERS.forEach((tier, i) => {
+    const nextMin = i > 0 ? PROTEIN_TIERS[i-1].min : Infinity;
+    const meals = MEALS.filter(m => m.protein_g >= tier.min && m.protein_g < nextMin)
+                        .sort((a,b) => b.protein_g - a.protein_g);
+    if(meals.length === 0) return;
+    html += `<div class="cat"><h3>${tier.label} <span style="color:var(--ink-soft);font-weight:400;font-size:13px;">— ${tier.sub}</span></h3><div class="meal-grid">`;
+    meals.forEach(m => {
+      const sel = selectedMeals.includes(m.id);
+      html += `
+        <div class="meal-card ${sel?'selected':''}" data-meal="${m.id}">
+          <div class="meal-top">
+            <h4>${m.name}</h4>
+            <div class="meal-check">${sel?'✓':''}</div>
+          </div>
+          <div class="meal-meta">
+            <span>${m.time}</span>
+            <span>${m.protein}</span>
+            <span class="badge">${m.protein_g} g de protéines</span>
+          </div>
+        </div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  html += `</section>`;
+  return html;
+}
+
+function renderCourses(){
+  const catLookup = allIngredients();
+  const needed = new Set();
+  selectedMeals.forEach(id => {
+    const meal = MEALS.find(m => m.id === id);
+    if(!meal) return;
+    meal.ingredients.forEach(([name]) => {
+      if(!inventory[name]) needed.add(name);
+    });
+  });
+
+  if(selectedMeals.length === 0){
+    return `<section class="active"><div class="empty"><strong>Pas encore de repas choisis</strong>Va dans l'onglet « Cette semaine » pour composer ton menu — ta liste de courses apparaîtra ici automatiquement.</div></section>`;
+  }
+  if(needed.size === 0){
+    return `<section class="active"><div class="empty"><strong>Rien à acheter !</strong>Tu as déjà tout ce qu'il faut pour les repas sélectionnés.</div></section>`;
+  }
+
+  const groups = groupByCategory([...needed], catLookup);
+  let html = `<section class="active">`;
+  CAT_ORDER.forEach(cat => {
+    const items = (groups[cat] || []).sort();
+    if(items.length === 0) return;
+    html += `<div class="shop-cat"><h3>${cat}</h3>`;
+    items.forEach(name => {
+      const isChecked = !!shopChecked[name];
+      html += `
+        <label class="shop-row ${isChecked?'checked':''}">
+          <input type="checkbox" data-shop="${encodeURIComponent(name)}" ${isChecked?'checked':''}>
+          <span>${name}</span>
+        </label>`;
+    });
+    html += `</div>`;
+  });
+  html += `<button class="reset-btn" id="reset-checked">Réinitialiser les cases cochées</button></section>`;
+  return html;
+}
+
+// Délégation d'événements : les écouteurs sont posés une seule fois sur les
+// conteneurs stables, jamais sur les éléments recréés à chaque rendu.
+const contentEl = document.getElementById('content');
+
+contentEl.addEventListener('change', e => {
+  if(e.target.matches('[data-inv]')){
+    const name = decodeURIComponent(e.target.getAttribute('data-inv'));
+    inventory[name] = e.target.checked;
+    save('mc_inventory', inventory);
+    if(activeTab === 'courses') render();
+    return;
+  }
+  if(e.target.matches('[data-shop]')){
+    const name = decodeURIComponent(e.target.getAttribute('data-shop'));
+    shopChecked[name] = e.target.checked;
+    save('mc_shop_checked', shopChecked);
+    render();
+  }
+});
+
+contentEl.addEventListener('click', e => {
+  const addBtn = e.target.closest('[data-add-btn]');
+  if(addBtn){
+    const cat = addBtn.getAttribute('data-add-btn');
+    const input = contentEl.querySelector(`[data-add-cat="${cat}"]`);
+    const name = input.value.trim();
+    if(!name) return;
+    customItems.push({name, category: cat});
+    inventory[name] = true;
+    save('mc_custom_items', customItems);
+    save('mc_inventory', inventory);
+    render();
+    return;
+  }
+
+  const mealCard = e.target.closest('.meal-card');
+  if(mealCard){
+    const id = mealCard.getAttribute('data-meal');
+    if(selectedMeals.includes(id)) selectedMeals = selectedMeals.filter(x => x !== id);
+    else selectedMeals.push(id);
+    save('mc_selected_meals', selectedMeals);
+    render();
+    return;
+  }
+
+  if(e.target.closest('#reset-checked')){
+    shopChecked = {};
+    save('mc_shop_checked', shopChecked);
+    render();
+  }
+});
+
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeTab = btn.getAttribute('data-tab');
+    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+
+loadAll();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed', err));
+  });
+}
+</script>
+</body>
+</html>

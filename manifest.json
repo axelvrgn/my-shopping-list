@@ -1,0 +1,9 @@
+{
+  "name": "Mes courses de la semaine",
+  "short_name": "Mes courses",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F8F6F0",
+  "theme_color": "#2F6F5E"
+}
