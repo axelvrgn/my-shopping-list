@@ -192,6 +192,7 @@
 
 <script>
 let MEALS = [];
+let STAPLES = []; // produits de base, toujours dans la liste de courses (hors sélection de repas)
 
 const CAT_ORDER = ["Protéines","Légumes & fruits","Féculents","Placard"];
 
@@ -207,15 +208,21 @@ let selectedMeals = [];  // [mealId]
 let shopChecked = {};    // { itemName: true/false }
 let activeTab = 'inventaire';
 
-// Charge les recettes depuis un fichier séparé : pour modifier la liste,
-// il suffit de recommitter recipes.json, sans toucher au reste de l'app.
+// Charge les recettes et les produits de base depuis des fichiers séparés :
+// pour modifier l'un ou l'autre, il suffit de recommitter le fichier concerné,
+// sans toucher au reste de l'app.
 async function loadRecipes(){
   try{
-    const res = await fetch('recipes.json');
-    MEALS = await res.json();
+    const [mealsRes, staplesRes] = await Promise.all([
+      fetch('recipes.json'),
+      fetch('staples.json')
+    ]);
+    MEALS = await mealsRes.json();
+    STAPLES = await staplesRes.json();
   }catch(e){
-    console.error('Impossible de charger recipes.json', e);
-    MEALS = [];
+    console.error('Impossible de charger recipes.json / staples.json', e);
+    MEALS = MEALS.length ? MEALS : [];
+    STAPLES = STAPLES.length ? STAPLES : [];
   }
 }
 
@@ -240,6 +247,7 @@ function save(key, value){
 function allIngredients(){
   const map = {};
   MEALS.forEach(m => m.ingredients.forEach(([name,cat]) => { map[name] = cat; }));
+  STAPLES.forEach(([name,cat]) => { map[name] = cat; });
   customItems.forEach(c => { map[c.name] = c.category; });
   return map;
 }
@@ -324,6 +332,9 @@ function renderSemaine(){
 function renderCourses(){
   const catLookup = allIngredients();
   const needed = new Set();
+  STAPLES.forEach(([name]) => {
+    if(!inventory[name]) needed.add(name);
+  });
   selectedMeals.forEach(id => {
     const meal = MEALS.find(m => m.id === id);
     if(!meal) return;
@@ -332,11 +343,11 @@ function renderCourses(){
     });
   });
 
-  if(selectedMeals.length === 0){
-    return `<section class="active"><div class="empty"><strong>Pas encore de repas choisis</strong>Va dans l'onglet « Cette semaine » pour composer ton menu — ta liste de courses apparaîtra ici automatiquement.</div></section>`;
-  }
   if(needed.size === 0){
-    return `<section class="active"><div class="empty"><strong>Rien à acheter !</strong>Tu as déjà tout ce qu'il faut pour les repas sélectionnés.</div></section>`;
+    const msg = selectedMeals.length === 0
+      ? "Tu as tout ce qu'il te faut, et tu n'as pas encore choisi de repas pour la semaine — va dans l'onglet « Cette semaine » pour compléter la liste."
+      : "Tu as déjà tout ce qu'il faut pour les repas sélectionnés.";
+    return `<section class="active"><div class="empty"><strong>Rien à acheter !</strong>${msg}</div></section>`;
   }
 
   const groups = groupByCategory([...needed], catLookup);

@@ -5,7 +5,8 @@ const FILES_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './recipes.json'
+  './recipes.json',
+  './staples.json'
 ];
 
 self.addEventListener('install', (event) => {
